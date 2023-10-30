@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def least_squares(A: np.ndarray, b: np.ndarray, method: str = "") -> np.ndarray:
+def least_squares(A: np.array, b: np.array, method: str = "") -> np.array:
     """
     Solve Ax = b using least squares method
     """
@@ -56,7 +56,7 @@ def least_squares(A: np.ndarray, b: np.ndarray, method: str = "") -> np.ndarray:
         x = inverse_project_A @ A.T @ b
         return x
 
-def singular_value_decomposition(A: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+def singular_value_decomposition(A: np.array) -> (np.array, np.array, np.array):
     """
     Compute singular value decomposition of a matrix
     """
@@ -90,7 +90,7 @@ def singular_value_decomposition(A: np.ndarray) -> (np.ndarray, np.ndarray, np.n
 
     return U, S, V
 
-def qr_decomposition(A: np.ndarray) -> (np.ndarray, np.ndarray):
+def qr_decomposition(A: np.array) -> (np.array, np.array):
     """
     Compute QR decomposition of a matrix
     """
@@ -109,7 +109,7 @@ def qr_decomposition(A: np.ndarray) -> (np.ndarray, np.ndarray):
         v_i = u_i
         V = append(V, v_i)
 
-    # Normalization
+    # Orthonormalization
     Q = np.empty((m, 0), float)
     for i in range(n):
         v_i = get(V, i)
@@ -132,7 +132,7 @@ def qr_decomposition(A: np.ndarray) -> (np.ndarray, np.ndarray):
 
 # Matrix manipulation functions ----------------
 
-def pseudo_inverse(A: np.ndarray) -> np.ndarray:
+def pseudo_inverse(A: np.array) -> np.array:
     """
     Compute pseudo inverse of a matrix
 
@@ -155,19 +155,19 @@ def pseudo_inverse(A: np.ndarray) -> np.ndarray:
 
         return pseudo_inverse
     
-def inverse(A: np.ndarray) -> np.ndarray:
+def inverse(A: np.array) -> np.array:
     """
     Compute inverse of a matrix
     """
     return np.linalg.inv(A)
 
-def orthogonalize(u: np.ndarray, v: np.ndarray) -> np.ndarray:
+def orthogonalize(u: np.array, v: np.array) -> np.array:
     """
     Orthogonalize two vectors
     """
     return (inner_product(u, v) * v) / (normalize(v) ** 2)
 
-def normalize(v: np.ndarray) -> float:
+def normalize(v: np.array) -> float:
     """
     Compute norm of a vector
     """
@@ -177,27 +177,27 @@ def normalize(v: np.ndarray) -> float:
 
     return norm ** 0.5
 
-def inner_product(v1: np.ndarray, v2: np.ndarray) -> float:
+def inner_product(v1: np.array, v2: np.array) -> float:
     """
     Compute inner product of two vectors
     """
     if len(v1) != len(v2):
         return None
     
-    dot_product = 0
+    product = 0
     for i in range(len(v1)):
-        dot_product += v1[i] * v2[i]
+        product += v1[i] * v2[i]
     
-    return dot_product
+    return product
 
-def get(A: np.ndarray, i: int) -> np.ndarray:
+def get(A: np.array, i: int) -> np.array:
     """
     Get a column of a matrix
     """
     a_i = A.copy()[:, i]
     return a_i
 
-def append(A: np.ndarray, v: np.ndarray) -> np.ndarray:
+def append(A: np.array, v: np.array) -> np.array:
     """
     Append a column to a matrix
     """
@@ -218,7 +218,7 @@ def sort_eigen_by_values(eigen):
 
     return sorted_eigen
 
-def points_to_matrix(points: list, degree: int) -> (np.ndarray, np.ndarray):
+def points_to_matrix(points: list, degree: int) -> (np.array, np.array):
     """
     Convert a list of points to a matrix
     """
@@ -232,7 +232,7 @@ def points_to_matrix(points: list, degree: int) -> (np.ndarray, np.ndarray):
 
     return np.array(A), np.array(B)
 
-def get_poly_label(coefficients: np.ndarray) -> str:
+def get_poly_label(coefficients: np.array) -> str:
     """
     Get polynomial label from coefficients
     """
@@ -252,7 +252,7 @@ def get_poly_label(coefficients: np.ndarray) -> str:
     
     return res
 
-def print_matrix(A: np.ndarray, PRINT_PRECISION: int = 5):
+def print_matrix(A: np.array, PRINT_PRECISION: int = 5):
     """
     Print formatted matrix
     """
@@ -268,7 +268,7 @@ def print_matrix(A: np.ndarray, PRINT_PRECISION: int = 5):
         print()
     print()
 
-def print_vector(v: np.ndarray, PRINT_PRECISION: int = 5):
+def print_vector(v: np.array, PRINT_PRECISION: int = 5):
     """
     Print formatted vector
     """
@@ -282,7 +282,7 @@ def print_vector(v: np.ndarray, PRINT_PRECISION: int = 5):
             print(f"{elem:>10}", end="")
     print()
 
-def plot_solution(x: np.ndarray, A: np.ndarray, B: np.ndarray):
+def plot_solution(x: np.array, A: np.array, B: np.array):
     """
     Plot least squares solution of Ax = b
     """
@@ -308,7 +308,7 @@ def plot_solution(x: np.ndarray, A: np.ndarray, B: np.ndarray):
 if __name__ == "__main__":
     # Data input -------------------------------
     data_points = [(1, 1), (2, 3), (3, 2), (4, 5), (5, 7), (6, 8), (7, 8), (8, 9), (9, 10), (10, 12)]
-    degree = 1
+    degree = 9
 
     # Least squares solution --------------------
     A, B = points_to_matrix(data_points, degree)
