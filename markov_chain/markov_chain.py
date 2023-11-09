@@ -107,4 +107,4 @@ if __name__ == '__main__':
     absolute_path = os.path.dirname(os.path.realpath(__file__))
     m = Markov(os.path.join(absolute_path, 'Shakespeare.txt'))
     chain = m.model
-    print(predict_words(chain, first_word = 'my', number_of_words = 10))
+    print(predict_words(chain, first_word = 'But', number_of_words = 5))

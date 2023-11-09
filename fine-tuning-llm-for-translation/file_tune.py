@@ -33,7 +33,7 @@ input_ids = tokenizer.encode(
     text,
     add_special_tokens=False,
     return_tensors="pt"
-).to(device)
+)
 
 print("Generating output...")
 output = model.generate(
@@ -41,8 +41,8 @@ output = model.generate(
     # temperature=0.7,
     early_stopping=True,
     max_new_tokens=100,
+    num_beams=5,
     # top_p=0.95,
-    # num_beams=5,
     # do_sample=True,
 )
 
