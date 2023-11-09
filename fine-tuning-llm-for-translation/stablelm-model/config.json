@@ -1,8 +1,9 @@
 {
-  "_name_or_path": "stabilityai/japanese-stablelm-base-ja_vocab-beta-7b",
+  "_name_or_path": "stablelm-model",
   "architectures": [
     "LlamaForCausalLM"
   ],
+  "attention_bias": false,
   "bos_token_id": 1,
   "eos_token_id": 2,
   "hidden_act": "silu",
@@ -18,9 +19,10 @@
   "pretraining_tp": 1,
   "rms_norm_eps": 1e-05,
   "rope_scaling": null,
+  "rope_theta": 10000.0,
   "tie_word_embeddings": false,
-  "torch_dtype": "float16",
-  "transformers_version": "4.30.2",
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.35.0",
   "use_cache": true,
   "vocab_size": 49408
 }

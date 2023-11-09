@@ -3,10 +3,10 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-# model_id = 'llm-jp/llm-jp-13b-v1.0'
-# model_name = 'llmjp'
-model_id = "stabilityai/japanese-stablelm-base-ja_vocab-beta-7b"
-model_name = 'stablelm'
+model_id = 'llm-jp/llm-jp-13b-v1.0'
+model_name = 'llmjp'
+# model_id = "stabilityai/japanese-stablelm-base-ja_vocab-beta-7b"
+# model_name = 'stablelm'
 
 print("Loading tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(
