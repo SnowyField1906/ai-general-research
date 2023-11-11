@@ -1,0 +1,84 @@
+{
+  "added_tokens_decoder": {
+    "0": {
+      "content": "<unk|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "1": {
+      "content": "<s|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "2": {
+      "content": "</s|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "3": {
+      "content": "<mask|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "4": {
+      "content": "<pad|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "5": {
+      "content": "<CLS|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "6": {
+      "content": "<SEP|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "7": {
+      "content": "<EOD|LLM-jp>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    }
+  },
+  "additional_special_tokens": [
+    "</s|LLM-jp>"
+  ],
+  "bos_token": "<s|LLM-jp>",
+  "clean_up_tokenization_spaces": false,
+  "cls_token": "<CLS|LLM-jp>",
+  "eod_token": "<EOD|LLM-jp>",
+  "eos_token": "<EOD|LLM-jp>",
+  "extra_ids": 0,
+  "mask_token": "<mask|LLM-jp>",
+  "model_max_length": 1000000000000000019884624838656,
+  "pad_token": "<pad|LLM-jp>",
+  "sep_token": "<SEP|LLM-jp>",
+  "sp_model_kwargs": {},
+  "tokenizer_class": "PreTrainedTokenizerFast",
+  "unk_token": "<unk|LLM-jp>"
+}

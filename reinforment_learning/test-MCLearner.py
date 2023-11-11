@@ -101,7 +101,7 @@ class WorldMCSolver:
         return total_reward
 
 
-# problem = World('data/world00.csv', reward={0: -0.04, 1: 1.0, 2: -1.0, 3: np.NaN}, random_rate=0.2)
+# problem = World('data/world00.txt', reward={0: -0.04, 1: 1.0, 2: -1.0, 3: np.NaN}, random_rate=0.2)
 # n = 10
 # random_start = np.zeros(n)
 # for i in range(n):
@@ -121,7 +121,7 @@ class WorldMCSolver:
 
 
 np.random.seed(41)
-problem = World('data/world02.csv', reward={0: -0.04, 1: 10.0, 2: -2.5, 3: np.NaN}, random_rate=0.2)
+problem = World('data/world02.txt', reward={0: -0.04, 1: 10.0, 2: -2.5, 3: np.NaN}, random_rate=0.2)
 problem_solver = WorldMCSolver(problem, MCLearner, epsilon=1.0, xi=0.99, initial_q=0.0)
 problem_solver.train(1000, start_pos=(5, 3), plot=True)
 

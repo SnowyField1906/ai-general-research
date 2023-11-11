@@ -10,23 +10,23 @@ class ValueIteration:
         self.reward_function = np.nan_to_num(reward_function)
         self.transition_model = transition_model
         self.gamma = gamma
-        self.utilities = np.zeros(self.num_states)
+        self.values = np.zeros(self.num_states)
         self.policy = None
 
     def one_iteration(self):
         delta = 0
         for s in range(self.num_states):
-            temp = self.utilities[s]
+            temp = self.values[s]
             v_list = np.zeros(A.LEN)
             """
             v(s) = r(s) + gamma * sum(p(s, a) * v(s'))
             """
             for a in A.ACTIONS:
                 p = self.transition_model[s, a]
-                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.utilities)
+                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.values)
 
-            self.utilities[s] = max(v_list)
-            delta = max(delta, abs(temp - self.utilities[s]))
+            self.values[s] = max(v_list)
+            delta = max(delta, abs(temp - self.values[s]))
         return delta
 
     def get_policy(self):
@@ -35,7 +35,7 @@ class ValueIteration:
             v_list = np.zeros(A.LEN)
             for a in A.ACTIONS:
                 p = self.transition_model[s, a]
-                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.utilities)
+                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.values)
 
             max_index = []
             max_val = np.max(v_list)

@@ -10,7 +10,7 @@ class ACTION:
     SYMBOLS = ['<', '^', '>', 'v']
     NAMES = ['LEFT', 'UP', 'RIGHT', 'DOWN']
 
-class WORLD:
+class OBJECT:
     EMPTY = 0
     GOAL = 1
     PIT = 2

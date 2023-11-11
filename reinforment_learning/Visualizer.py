@@ -1,27 +1,26 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
-from time import time
 from World import World
 from Helpers import ACTION as A
 
-default_fig_size = (8, 6)
+fig_size = (6, 6)
+marker_size = 20
+font_size = 10
+
 default_n = 100
-default_mode = True
-default_start_pos = (2, 0)
+default_start_pos = (0, 0)
 
 class Visualizer:
     def __init__(self, world: World):
         self.world = world
 
-    def random_start_policy(self, policy, start_pos=default_start_pos, n=default_n, fig_size=default_fig_size, plot=default_mode):
+    def random_start_policy(self, policy, start_pos=default_start_pos, n=default_n):
         """
         Repeatedly execute the given policy for n times.
         """
         w = self.world
 
-        start_time = int(round(time() * 1000))
-        overtime = False
         scores = np.zeros(n)
         i = 0
         while i < n:
@@ -30,30 +29,21 @@ class Visualizer:
             if temp > float('-inf'):
                 scores[i] = temp
                 i += 1
-            cur_time = int(round(time() * 1000)) - start_time
-            if cur_time > n * w.time_limit:
-                overtime = True
-                break
 
         print(f'max = {np.max(scores)}')
         print(f'min = {np.min(scores)}')
         print(f'mean = {np.mean(scores)}')
         print(f'std = {np.std(scores)}')
 
-        if overtime is False and plot is True:
-            _, ax = plt.subplots(1, 1, figsize=fig_size)
-            ax.set_xlabel('Total rewards in a single game')
-            ax.set_ylabel('Frequency')
-            ax.hist(scores, bins=100, color='#1f77b4', edgecolor='black')
-            plt.show()
+        _, ax = plt.subplots(1, 1, figsize=fig_size)
+        ax.set_xlabel('Total rewards in a single game')
+        ax.set_ylabel('Frequency')
+        ax.hist(scores, bins=100, color='#1f77b4', edgecolor='black')
+        plt.show()
 
-        if overtime is True:
-            print('Overtime!')
-            return None
-        else:
-            return np.max(scores), np.min(scores), np.mean(scores)
+        return np.max(scores), np.min(scores), np.mean(scores)
 
-    def plot_map(self, fig_size=default_fig_size):
+    def plot_map(self):
         """
         Visualize the map of the Grid World.
         """
@@ -89,10 +79,13 @@ class Visualizer:
                     rect = patches.Rectangle((x, y), unit, unit, edgecolor='none', facecolor='green', alpha=0.6)
                     ax.add_patch(rect)
 
+                s = w.get_state_from_pos((i, j))
+                ax.text(x + 0.5 * unit, y + 0.5 * unit, f's = {s}\nr = {w.reward_function[s]}', horizontalalignment='center', verticalalignment='center', fontsize=font_size)
+
         plt.tight_layout()
         plt.show()
 
-    def plot_policy(self, policy, fig_size=default_fig_size):
+    def plot_policy(self, policy):
         """
         Visualize the given policy.
         """
@@ -102,6 +95,7 @@ class Visualizer:
         unit = max(1, unit)
         _, ax = plt.subplots(1, 1, figsize=fig_size)
         ax.axis('off')
+
         for i in range(w.n_cols + 1):
             if i == 0 or i == w.n_cols:
                 ax.plot([i * unit, i * unit], [0, w.n_rows * unit], color='black')
@@ -117,6 +111,7 @@ class Visualizer:
             for j in range(w.n_cols):
                 y = (w.n_rows - 1 - i) * unit
                 x = j * unit
+
                 if w.map[i, j] == 3:
                     rect = patches.Rectangle((x, y), unit, unit, edgecolor='none', facecolor='black', alpha=0.6)
                     ax.add_patch(rect)
@@ -126,17 +121,19 @@ class Visualizer:
                 elif w.map[i, j] == 1:
                     rect = patches.Rectangle((x, y), unit, unit, edgecolor='none', facecolor='green', alpha=0.6)
                     ax.add_patch(rect)
-                s = w.get_state_from_pos((i, j))
+
                 if w.map[i, j] == 0:
+                    s = w.get_state_from_pos((i, j))
                     a = policy[s]
-                    ax.plot([x + 0.5 * unit], [y + 0.5 * unit], marker=A.SYMBOLS[a], linestyle='none', markersize=max(fig_size)*unit, color='#1f77b4')
+                    ax.plot([x + 0.5 * unit], [y + 0.5 * unit], marker=A.SYMBOLS[a], markersize=marker_size, linestyle='none', color='#1f77b4')
+
 
         plt.tight_layout()
         plt.show()
 
-    def visualize_value_policy(self, policy, utilities, fig_size=default_fig_size):
+    def visualize_value_policy(self, policy, values):
         """
-        Visualize the given policy and utility utilities.
+        Visualize the given policy and value values.
         """
         w = self.world
 
@@ -172,11 +169,11 @@ class Visualizer:
                     rect = patches.Rectangle((x, y), unit, unit, edgecolor='none', facecolor='green', alpha=0.6)
                     ax.add_patch(rect)
                 if w.map[curr_pos] != 3:
-                    ax.text(x + 0.5 * unit, y + 0.5 * unit, f'{utilities[s]:.4f}', horizontalalignment='center', verticalalignment='center', fontsize=max(fig_size)*unit*0.6)
+                    ax.text(x + 0.5 * unit, y + 0.5 * unit, f'{values[s]:.4f}', horizontalalignment='center', verticalalignment='center', fontsize=font_size)
                 if policy is not None:
                     if w.map[curr_pos] == 0:
                         a = policy[s]
-                        ax.plot([x + 0.5 * unit], [y + 0.5 * unit], marker=A.SYMBOLS[a], alpha=0.4, linestyle='none', markersize=max(fig_size)*unit, color='#1f77b4')
+                        ax.plot([x + 0.5 * unit], [y + 0.5 * unit], marker=A.SYMBOLS[a], alpha=0.4, linestyle='none', markersize=marker_size, color='#1f77b4')
 
         plt.tight_layout()
         plt.show()

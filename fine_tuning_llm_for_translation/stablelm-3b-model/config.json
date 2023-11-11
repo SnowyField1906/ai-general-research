@@ -1,0 +1,31 @@
+{
+  "_name_or_path": "stabilityai/japanese-stablelm-3b-4e1t-base",
+  "architectures": [
+    "StableLMEpochForCausalLM"
+  ],
+  "auto_map": {
+    "AutoConfig": "configuration_stablelm_epoch.StableLMEpochConfig",
+    "AutoModelForCausalLM": "modeling_stablelm_epoch.StableLMEpochForCausalLM"
+  },
+  "bos_token_id": 0,
+  "eos_token_id": 0,
+  "hidden_act": "silu",
+  "hidden_size": 2560,
+  "initializer_range": 0.02,
+  "intermediate_size": 6912,
+  "max_position_embeddings": 4096,
+  "model_type": "stablelm_epoch",
+  "norm_eps": 1e-05,
+  "num_attention_heads": 32,
+  "num_heads": 32,
+  "num_hidden_layers": 32,
+  "num_key_value_heads": 32,
+  "rope_pct": 0.25,
+  "rope_theta": 10000,
+  "rotary_scaling_factor": 1.0,
+  "tie_word_embeddings": false,
+  "torch_dtype": "float16",
+  "transformers_version": "4.35.0",
+  "use_cache": true,
+  "vocab_size": 50304
+}

@@ -19,17 +19,17 @@ class PolicyIteration:
         else:
             self.policy = init_policy
         if init_value is None:
-            self.utilities = np.zeros(self.num_states)
+            self.values = np.zeros(self.num_states)
         else:
-            self.utilities = init_value
+            self.values = init_value
 
     def one_policy_evaluation(self):
         """
         Perform one sweep of Policy evaluation.
         
         ### Algorithm
-        For each State, its new Utility is calculated from:
-            - The current Utility.
+        For each State, its new Value is calculated from:
+            - The current Value.
             - The expectation following its random_rate distribution to neighbor States based on the current Policy.
             - Reward of the current State.
             - Discount factor gamma.
@@ -37,9 +37,9 @@ class PolicyIteration:
         u(s) = r(s) + gamma * sum(p(s, a, s') * u(s'))
 
         ### Return
-            - The maximum change in utility.
+            - The maximum change in Value.
         """
-        old = self.utilities
+        old = self.values
         new = np.zeros(self.num_states)
 
         for state in range(self.num_states):
@@ -48,7 +48,7 @@ class PolicyIteration:
             reward = self.reward_function[state]
             new[state] = reward + self.gamma * np.inner(probability, old)
 
-        self.utilities = new
+        self.values = new
         delta = np.max(np.abs(old - new))
 
         return delta
@@ -58,7 +58,7 @@ class PolicyIteration:
         Perform sweeps of Policy evaluation iteratively with a stop criterion of the given tol or epoch_limit.
 
         ### Algorithm
-        For each sweep, update the Utilities, until:
+        For each sweep, update the Values, until:
             - The highest change between updates is less than tol.
             - The number of sweeps exceeds epoch_limit.
 
@@ -84,7 +84,7 @@ class PolicyIteration:
 
         ### Algorithm
         For each State, its new Policy is calculated from:
-            - The highest Utility between all of its neighbor States.
+            - The highest Value between all of its neighbor States.
 
         π(s) = argmax(sum(p(s, a, s') * u(s')))
 
@@ -95,13 +95,13 @@ class PolicyIteration:
 
         for s in range(self.num_states):
             temp = self.policy[s]
-            neighbor_utilities = np.zeros(A.LEN)
+            neighbor_values = np.zeros(A.LEN)
             
             for a in A.ACTIONS:
                 p = self.transition_model[s, a]
-                neighbor_utilities[a] = np.inner(p, self.utilities)
+                neighbor_values[a] = np.inner(p, self.values)
 
-            self.policy[s] = np.argmax(neighbor_utilities)
+            self.policy[s] = np.argmax(neighbor_values)
 
             if temp != self.policy[s]:
                 update_policy_count += 1
