@@ -42,11 +42,15 @@ class PolicyIteration:
         old = self.values
         new = np.zeros(self.num_states)
 
-        for state in range(self.num_states):
-            action = self.policy[state]
-            probability = self.transition_model[state, action]
-            reward = self.reward_function[state]
-            new[state] = reward + self.gamma * np.inner(probability, old)
+        # for state in range(self.num_states):
+        #     action = self.policy[state]
+        #     probability = self.transition_model[state, action]
+        #     reward = self.reward_function[state]
+        #     new[state] = reward + self.gamma * np.inner(probability, old)
+        
+        A = np.eye(self.num_states) - self.gamma * self.transition_model[range(self.num_states), self.policy]
+        b = self.reward_function
+        new = np.linalg.solve(A, b)
 
         self.values = new
         delta = np.max(np.abs(old - new))
@@ -75,6 +79,8 @@ class PolicyIteration:
         while delta > tol and len(delta_history) < epoch_limit:
             delta = self.one_policy_evaluation()
             delta_history.append(delta)
+
+        print("Delta history:", delta_history)
 
         return len(delta_history)
 
