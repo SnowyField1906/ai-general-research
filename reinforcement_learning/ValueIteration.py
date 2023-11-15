@@ -1,71 +1,109 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Helpers import ACTION as A
-
-default_gamma = 0.9
+from Constants import ACTION as A, TRAIN as T, VISUALIZATION as V
 
 class ValueIteration:
-    def __init__(self, reward_function, transition_model, gamma=default_gamma):
-        self.num_states = transition_model.shape[0]
+    def __init__(self, reward_function, transition_model, gamma=T.GAMMA, init_value=None):
+        self.n_states = transition_model.shape[0]
         self.reward_function = np.nan_to_num(reward_function)
         self.transition_model = transition_model
         self.gamma = gamma
-        self.values = np.zeros(self.num_states)
-        self.policy = None
+    
+        self.policy = (np.ones(self.n_states) * -1).astype(int)
 
-    def one_iteration(self):
-        delta = 0
-        for s in range(self.num_states):
-            temp = self.values[s]
-            v_list = np.zeros(A.LEN)
-            """
-            v(s) = r(s) + gamma * sum(p(s, a) * v(s'))
-            """
-            for a in A.ACTIONS:
-                p = self.transition_model[s, a]
-                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.values)
+        if init_value is None:
+            self.values = np.zeros(self.n_states)
+        else:
+            self.values = init_value
 
-            self.values[s] = max(v_list)
-            delta = max(delta, abs(temp - self.values[s]))
+    def one_value_evaluation(self):
+        """
+        Perform one iteration of value evaluation.
+
+        ### Algorithm
+        For each State, its new Value is calculated from:
+            - The current Value.
+            - The expectation following its random_rate distribution to neighbor States based on the current Policy.
+            - Reward of the current State.
+            - Discount factor gamma.
+
+        v(s) = r(s) + gamma * max(sum(p(s, a, s') * v(s')))
+
+        ### Return
+            - The maximum change in Value.
+        """
+        old = self.values
+        new = np.zeros(self.n_states)
+
+        for state in range(self.n_states):
+            values = np.zeros(A.LEN)
+            reward = self.reward_function[state]
+
+            for action in A.ACTIONS:
+                probability = self.transition_model[state, action]
+                values[action] = reward + self.gamma * np.inner(probability, self.values)
+
+            new[state] = max(values)
+
+        self.values = new
+        delta = np.max(np.abs(old - new))
+
         return delta
 
-    def get_policy(self):
-        pi = np.ones(self.num_states) * -1
-        for s in range(self.num_states):
-            v_list = np.zeros(A.LEN)
-            for a in A.ACTIONS:
-                p = self.transition_model[s, a]
-                v_list[a] = self.reward_function[s] + self.gamma * np.sum(p * self.values)
+    def run_policy_improvement(self):
+        """
+        Perform one Policy improvement.
 
-            max_index = []
-            max_val = np.max(v_list)
-            for a in range(A.LEN):
-                if v_list[a] == max_val:
-                    max_index.append(a)
-            pi[s] = np.random.choice(max_index)
-        return pi.astype(int)
+        ### Algorithm
+        For each State, its new Policy is calculated from:
+            - The highest Value between all of its neighbor States.
 
-    def train(self, tol=1e-3, plot=True):
-        epoch = 0
-        delta = self.one_iteration()
-        delta_history = [delta]
-        while delta > tol:
-            epoch += 1
-            delta = self.one_iteration()
+        π(s) = argmax_a(v(s))
+        """
+        for state in range(self.n_states):
+            neighbor_values = np.zeros(A.LEN)
+
+            for action in A.ACTIONS:
+                probability = self.transition_model[state, action]
+                neighbor_values[action] = self.reward_function[state] + self.gamma * np.inner(probability, self.values)
+
+            self.policy[state] = np.argmax(neighbor_values)
+
+    def train(self, tol=T.TOL, epoch_limit=T.EVALUATION_LIMIT, plot=True):
+        """
+        Perform sweeps of Value evaluation iteratively with a stop criterion of the given tol or epoch_limit.
+
+        ### Algorithm
+        For each sweep, update the Values, until:
+            - The highest change between updates is less than tol.
+            - The number of sweeps exceeds epoch_limit.
+
+        ### Parameters
+            - tol         -- The stop criterion.
+            - epoch_limit -- The maximum number of sweeps.
+            - plot        --  Whether to plot learning curves showing number of evaluation sweeps.
+        """
+        delta = float('inf')
+        delta_history = []
+
+        while delta > tol and len(delta_history) < epoch_limit:
+            delta = self.one_value_evaluation()
             delta_history.append(delta)
-            if delta < tol:
-                break
-        self.policy = self.get_policy()
 
-        # print(f'# iterations of policy improvement: {len(delta_history)}')
-        # print(f'delta = {delta_history}')
+        self.run_policy_improvement()
 
         if plot is True:
-            fig, ax = plt.subplots(1, 1, figsize=(3, 2), dpi=200)
-            ax.plot(np.arange(len(delta_history)) + 1, delta_history, marker='o', markersize=4,
-                    alpha=0.7, color='#2ca02c', label=r'$\gamma= $' + f'{self.gamma}')
-            ax.set_xlabel('Iteration')
-            ax.set_ylabel('Delta')
-            ax.legend()
+            _, axe = plt.subplots(1, 1, figsize=V.FIG_SIZE)
+            axe.plot(
+                np.arange(len(delta_history)) + 1,
+                delta_history,
+                marker='o',
+                label=f'Sweeps in Value evaluation with $\gamma= $' + f'{self.gamma}'
+            )
+            axe.set_xticks(np.arange(len(delta_history)))
+            axe.set_xlabel('Sweeps')
+            axe.set_ylabel('Delta')
+            axe.legend()
+
             plt.tight_layout()
             plt.show()

@@ -2,7 +2,7 @@ import numpy as np
 
 from World import World
 from Visualizer import Visualizer
-from Helpers import ACTION as A
+from Constants import ACTION as A
 
 problem = World('data/world00.txt')
 init_policy = problem.generate_random_policy()

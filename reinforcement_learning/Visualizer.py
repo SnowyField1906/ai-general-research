@@ -2,48 +2,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 from World import World
-from Helpers import ACTION as A
-
-fig_size = (6, 6)
-marker_size = 20
-font_size = 10
-
-default_n = 100
-default_start_pos = (0, 0)
+from Constants import ACTION as A, VISUALIZATION as V
 
 class Visualizer:
     def __init__(self, world: World):
         self.world = world
 
-    def random_start_policy(self, policy, start_pos=default_start_pos, n=default_n):
-        """
-        Repeatedly execute the given policy for n times.
-        """
-        w = self.world
-
-        scores = np.zeros(n)
-        i = 0
-        while i < n:
-            temp = w.execute_policy(policy, start_pos)
-            print(f'i = {i} Random start result: {temp}')
-            if temp > float('-inf'):
-                scores[i] = temp
-                i += 1
-
-        print(f'max = {np.max(scores)}')
-        print(f'min = {np.min(scores)}')
-        print(f'mean = {np.mean(scores)}')
-        print(f'std = {np.std(scores)}')
-
-        _, ax = plt.subplots(1, 1, figsize=fig_size)
-        ax.set_xlabel('Total rewards in a single game')
-        ax.set_ylabel('Frequency')
-        ax.hist(scores, bins=100, color='#1f77b4', edgecolor='black')
-        plt.show()
-
-        return np.max(scores), np.min(scores), np.mean(scores)
-
-    def plot_map(self):
+    def plot_map(self, fig_size=V.FIG_SIZE, font_size=V.FONT_SIZE):
         """
         Visualize the map of the Grid World.
         """
@@ -85,7 +50,7 @@ class Visualizer:
         plt.tight_layout()
         plt.show()
 
-    def plot_policy(self, policy):
+    def plot_policy(self, policy, fig_size=V.FIG_SIZE, marker_size=V.MARKER_SIZE):
         """
         Visualize the given policy.
         """
@@ -131,7 +96,7 @@ class Visualizer:
         plt.tight_layout()
         plt.show()
 
-    def visualize_value_policy(self, policy, values):
+    def visualize_value_policy(self, policy, values, fig_size=V.FIG_SIZE, font_size=V.FONT_SIZE, marker_size=V.MARKER_SIZE):
         """
         Visualize the given policy and value values.
         """
@@ -177,3 +142,31 @@ class Visualizer:
 
         plt.tight_layout()
         plt.show()
+
+    def random_start_policy(self, policy, start_pos=V.START_POS, execution_limit=V.EXECUTION_LIMIT, fig_size=V.FIG_SIZE):
+        """
+        Repeatedly execute the given policy for n times.
+        """
+        w = self.world
+
+        scores = np.zeros(execution_limit)
+        i = 0
+        while i < execution_limit:
+            temp = w.execute_policy(policy, start_pos)
+            print(f'i = {i} Random start result: {temp}')
+            if temp > float('-inf'):
+                scores[i] = temp
+                i += 1
+
+        print(f'max = {np.max(scores)}')
+        print(f'min = {np.min(scores)}')
+        print(f'mean = {np.mean(scores)}')
+        print(f'std = {np.std(scores)}')
+
+        _, ax = plt.subplots(1, 1, figsize=fig_size)
+        ax.set_xlabel('Total rewards in a single game')
+        ax.set_ylabel('Frequency')
+        ax.hist(scores, bins=100, color='#1f77b4', edgecolor='black')
+        plt.show()
+
+        return np.max(scores), np.min(scores), np.mean(scores)

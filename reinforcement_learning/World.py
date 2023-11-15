@@ -1,18 +1,9 @@
 import numpy as np
 from time import time
-from Helpers import ACTION as A, OBJECT as O
-
-default_reward = {
-    O.EMPTY: -0.1,
-    O.GOAL: 10.0,
-    O.PIT: -10.0,
-    O.WALL: np.NaN
-}
-default_random_rate = 0.2
-default_time_limit = 200
+from Constants import ACTION as A, TRAIN as T
 
 class World:
-    def __init__(self, filename, reward=default_reward, random_rate=default_random_rate):
+    def __init__(self, filename, reward=T.REWARD, random_rate=T.RANDOM_RATE):
         file = open(filename)
         self.map = np.array(
             [list(map(float, s.strip().split(","))) for s in file.readlines()]
@@ -134,7 +125,7 @@ class World:
         """
         return np.random.randint(A.LEN, size=self.n_states)
 
-    def execute_policy(self, policy, start_pos, time_limit=default_time_limit):
+    def execute_policy(self, policy, start_pos, time_limit=T.EXECUTION_TIME_LIMIT):
         """
         Get the total reward starting from the start_pos following the given policy.
 
