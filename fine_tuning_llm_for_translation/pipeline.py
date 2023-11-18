@@ -5,12 +5,12 @@ from langchain.prompts import PromptTemplate
 
 # model_id = 'llm-jp/llm-jp-13b-v1.0'
 # model_name = 'llmjp'
-model_id = "stabilityai/japanese-stablelm-base-ja_vocab-beta-7b"
-model_name = 'stablelm'
+# model_id = "stabilityai/japanese-stablelm-base-ja_vocab-beta-7b"
+# model_name = 'stablelm'
 # model_id = "stabilityai/japanese-stablelm-3b-4e1t-base"
 # model_name = 'stablelm-3b'
-# model_id = "stabilityai/japanese-stablelm-base-gamma-7b"
-# model_name = 'stablelm'
+model_id = "stabilityai/japanese-stablelm-base-gamma-7b"
+model_name = 'stablelm'
 
 print("Loading tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(

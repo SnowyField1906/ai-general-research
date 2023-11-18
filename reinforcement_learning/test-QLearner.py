@@ -1,5 +1,5 @@
 from World import World
-from QLearner import QLearner
+from QLearninh import QLearner
 
 from time import time
 

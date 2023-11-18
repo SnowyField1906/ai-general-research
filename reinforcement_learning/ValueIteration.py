@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 from Constants import ACTION as A, TRAIN as T, VISUALIZATION as V
 
 class ValueIteration:
-    def __init__(self, reward_function, transition_model, gamma=T.GAMMA, init_value=None):
+    def __init__(self, reward_function, transition_model, init_value=None):
         self.n_states = transition_model.shape[0]
         self.reward_function = np.nan_to_num(reward_function)
         self.transition_model = transition_model
-        self.gamma = gamma
     
         self.policy = (np.ones(self.n_states) * -1).astype(int)
 
@@ -16,18 +15,18 @@ class ValueIteration:
         else:
             self.values = init_value
 
-    def one_value_evaluation(self):
+    def one_evaluation(self):
         """
         Perform one iteration of value evaluation.
 
         ### Algorithm
         For each State, its new Value is calculated from:
             - The current Value.
-            - The expectation following its random_rate distribution to neighbor States based on the current Policy.
+            - The expectation following its random_rate distribution to next States based on the current Policy.
             - Reward of the current State.
             - Discount factor gamma.
 
-        v(s) = r(s) + gamma * max(sum(p(s, a, s') * v(s')))
+        v(s) = r(s) + gamma * max(p(s, a, s') * v(s'))
 
         ### Return
             - The maximum change in Value.
@@ -41,7 +40,7 @@ class ValueIteration:
 
             for action in A.ACTIONS:
                 probability = self.transition_model[state, action]
-                values[action] = reward + self.gamma * np.inner(probability, self.values)
+                values[action] = reward + T.DISCOUNT_FACTOR * np.inner(probability, self.values)
 
             new[state] = max(values)
 
@@ -50,28 +49,28 @@ class ValueIteration:
 
         return delta
 
-    def run_policy_improvement(self):
+    def policy_improvement(self):
         """
         Perform one Policy improvement.
 
         ### Algorithm
         For each State, its new Policy is calculated from:
-            - The highest Value between all of its neighbor States.
+            - The highest Value between all of its next States.
 
-        π(s) = argmax_a(v(s))
+        π(s) = argmax(p(s, a, s') * v(s'))
         """
         for state in range(self.n_states):
-            neighbor_values = np.zeros(A.LEN)
+            next_values = np.zeros(A.LEN)
 
             for action in A.ACTIONS:
                 probability = self.transition_model[state, action]
-                neighbor_values[action] = self.reward_function[state] + self.gamma * np.inner(probability, self.values)
+                next_values[action] = np.inner(probability, self.values)
 
-            self.policy[state] = np.argmax(neighbor_values)
+            self.policy[state] = np.argmax(next_values)
 
-    def train(self, tol=T.TOL, epoch_limit=T.EVALUATION_LIMIT, plot=True):
+    def train(self, plot=True):
         """
-        Perform sweeps of Value evaluation iteratively with a stop criterion of the given tol or epoch_limit.
+        Perform sweeps of Value evaluation iteratively with a stop criterion or epoch limit.
 
         ### Algorithm
         For each sweep, update the Values, until:
@@ -79,31 +78,29 @@ class ValueIteration:
             - The number of sweeps exceeds epoch_limit.
 
         ### Parameters
-            - tol         -- The stop criterion.
-            - epoch_limit -- The maximum number of sweeps.
             - plot        --  Whether to plot learning curves showing number of evaluation sweeps.
         """
         delta = float('inf')
         delta_history = []
 
-        while delta > tol and len(delta_history) < epoch_limit:
-            delta = self.one_value_evaluation()
+        while delta > T.STOP_CRITERION and len(delta_history) < T.EVALUATION_LIMIT:
+            delta = self.one_evaluation()
             delta_history.append(delta)
 
-        self.run_policy_improvement()
+        self.policy_improvement()
 
         if plot is True:
-            _, axe = plt.subplots(1, 1, figsize=V.FIG_SIZE)
-            axe.plot(
+            _, ax = plt.subplots(1, 1, figsize=V.FIG_SIZE)
+            ax.plot(
                 np.arange(len(delta_history)) + 1,
                 delta_history,
                 marker='o',
-                label=f'Sweeps in Value evaluation with $\gamma= $' + f'{self.gamma}'
+                label=f'Sweeps in Value evaluation with $\gamma= $' + f'{T.DISCOUNT_FACTOR}'
             )
-            axe.set_xticks(np.arange(len(delta_history)))
-            axe.set_xlabel('Sweeps')
-            axe.set_ylabel('Delta')
-            axe.legend()
+            ax.set_xticks(np.arange(len(delta_history)))
+            ax.set_xlabel('Sweeps')
+            ax.set_ylabel('Delta')
+            ax.legend()
 
             plt.tight_layout()
             plt.show()

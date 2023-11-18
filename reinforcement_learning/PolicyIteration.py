@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 from Constants import ACTION as A, TRAIN as T, VISUALIZATION as V
 
 class PolicyIteration:
-    def __init__(self, reward_function, transition_model, gamma=T.GAMMA, init_policy=None, init_value=None):
+    def __init__(self, reward_function, transition_model, init_policy=None, init_value=None):
         self.n_states = transition_model.shape[0]
         self.reward_function = np.nan_to_num(reward_function)
         self.transition_model = transition_model
-        self.gamma = gamma
     
         if init_policy is None:
             self.policy = np.random.randint(0, A.LEN, self.n_states)
@@ -18,18 +17,18 @@ class PolicyIteration:
         else:
             self.values = init_value
 
-    def one_policy_evaluation(self):
+    def one_evaluation(self):
         """
         Perform one sweep of Policy evaluation.
         
         ### Algorithm
         For each State, its new Value is calculated from:
             - The current Value.
-            - The expectation following its random_rate distribution to neighbor States based on the current Policy.
+            - The expectation following its random_rate distribution to next States based on the current Policy.
             - Reward of the current State.
             - Discount factor gamma.
 
-        v(s) = r(s) + gamma * sum(p(s, a, s') * v(s'))
+        v(s) = r(s) + gamma * p(s, a, s') * v(s')
 
         ### Return
             - The maximum change in Value.
@@ -42,10 +41,10 @@ class PolicyIteration:
             action = self.policy[state]
             probability = self.transition_model[state, action]
             reward = self.reward_function[state]
-            new[state] = reward + self.gamma * np.inner(probability, old)
+            new[state] = reward + T.DISCOUNT_FACTOR * np.inner(probability, old)
         
         # Approach 2
-        # A = np.eye(self.n_states) - self.gamma * self.transition_model[range(self.n_states), self.policy]
+        # A = np.eye(self.n_states) - T.DISCOUNT_FACTOR * self.transition_model[range(self.n_states), self.policy]
         # b = self.reward_function
         # new = np.linalg.solve(A, b)
 
@@ -54,18 +53,14 @@ class PolicyIteration:
 
         return delta
 
-    def run_policy_evaluation(self, tol=T.TOL, epoch_limit=T.EVALUATION_LIMIT):
+    def evaluation(self):
         """
-        Perform sweeps of Policy evaluation iteratively with a stop criterion of the given tol or epoch_limit.
+        Perform sweeps of Policy evaluation iteratively with a stop criterion or epoch limit.
 
         ### Algorithm
         For each sweep, update the Values, until:
             - The highest change between updates is less than tol.
-            - The number of sweeps exceeds epoch_limit.
-
-        ### Parameters
-            - tol         -- The stop criterion.
-            - epoch_limit -- The maximum number of sweeps.
+            - The number of sweeps exceeds epoch limit.
 
         ### Return
             - The number of sweeps.
@@ -73,21 +68,21 @@ class PolicyIteration:
         delta = float('inf')
         delta_history = []
 
-        while delta > tol and len(delta_history) < epoch_limit:
-            delta = self.one_policy_evaluation()
+        while delta > T.STOP_CRITERION and len(delta_history) < T.EVALUATION_LIMIT:
+            delta = self.one_evaluation()
             delta_history.append(delta)
 
         return len(delta_history)
 
-    def run_policy_improvement(self):
+    def policy_improvement(self):
         """
         Perform one Policy improvement.
 
         ### Algorithm
         For each State, its new Policy is calculated from:
-            - The highest Value between all of its neighbor States.
+            - The highest Value between all of its next States.
 
-        π(s) = argmax_a(v(s))
+        π(s) = argmax(p(s, a, s') * v(s'))
 
         ### Return
             - The number of States whose Policy has been changed.
@@ -96,20 +91,20 @@ class PolicyIteration:
 
         for state in range(self.n_states):
             temp = self.policy[state]
-            neighbor_values = np.zeros(A.LEN)
+            next_values = np.zeros(A.LEN)
             
             for action in A.ACTIONS:
                 probability = self.transition_model[state, action]
-                neighbor_values[action] = np.inner(probability, self.values)
+                next_values[action] = np.inner(probability, self.values)
 
-            self.policy[state] = np.argmax(neighbor_values)
+            self.policy[state] = np.argmax(next_values)
 
             if temp != self.policy[state]:
                 update_policy_count += 1
 
         return update_policy_count
 
-    def train(self, epoch_limit=T.IMPROVEMENT_LIMIT, plot=True):
+    def train(self, plot=True):
         """
         Perform Policy iteration by iteratively alternates Policy evaluation and Policy improvement.
 
@@ -119,7 +114,7 @@ class PolicyIteration:
             - The number of Policy updates.
         Until:
             - The Policy is unchanged.
-            - The number of iterations exceeds epoch_limit.
+            - The number of iterations exceeds epoch limit.
 
         ### Parameters
             - epoch_limit -- The maximum number of iterations.
@@ -129,9 +124,9 @@ class PolicyIteration:
         eval_sweeps_history = []
         policy_changes_history = []
 
-        while policy_changes != 0 and len(eval_sweeps_history) < epoch_limit:
-            eval_sweeps = self.run_policy_evaluation()
-            policy_changes = self.run_policy_improvement()
+        while policy_changes != 0 and len(eval_sweeps_history) < T.IMPROVEMENT_LIMIT:
+            eval_sweeps = self.evaluation()
+            policy_changes = self.policy_improvement()
             eval_sweeps_history.append(eval_sweeps)
             policy_changes_history.append(policy_changes)
 
@@ -142,7 +137,7 @@ class PolicyIteration:
                 np.arange(len(eval_sweeps_history)),
                 eval_sweeps_history,
                 marker='o',
-                label=f'Sweeps in Policy evaluation with $\gamma =$ {self.gamma}'
+                label=f'Sweeps in Policy evaluation with $\gamma =$ {T.DISCOUNT_FACTOR}'
             )
             axes[0].set_xticks(np.arange(len(eval_sweeps_history)))
             axes[0].set_xlabel('Sweeps')
@@ -153,7 +148,7 @@ class PolicyIteration:
                 np.arange(len(policy_changes_history)),
                 policy_changes_history,
                 marker='o',
-                label=f'Updates in Policy improvement with $\gamma =$ {self.gamma}'
+                label=f'Updates in Policy improvement with $\gamma =$ {T.DISCOUNT_FACTOR}'
             )
             axes[1].set_xticks(np.arange(len(policy_changes_history)))
             axes[1].set_xlabel('Updates')
