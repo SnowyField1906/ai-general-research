@@ -2,7 +2,7 @@ from Visualizer import Visualizer
 from World import World
 from PolicyIteration import PolicyIteration
 
-problem = World('data/world000.txt')
+problem = World('world.txt')
 
 solver = PolicyIteration(problem.reward_function, problem.transition_model)
 solver.train()

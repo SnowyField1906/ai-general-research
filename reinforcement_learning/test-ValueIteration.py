@@ -2,7 +2,7 @@ from World import World
 from ValueIteration import ValueIteration
 from Visualizer import Visualizer
 
-problem = World('data/world00.txt')
+problem = World('world.txt')
 
 solver = ValueIteration(problem.reward_function, problem.transition_model)
 solver.train()

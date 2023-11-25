@@ -3,7 +3,7 @@ from World import World
 from ADPLearning import ADPLearning
 from Visualizer import Visualizer
 
-problem = World('data/world00.txt')
+problem = World('world.txt')
 
 solver = ADPLearning(problem.n_states, problem.blackbox_move)
 solver.train()

@@ -4,7 +4,7 @@ from World import World
 from Visualizer import Visualizer
 from Constants import ACTION as A
 
-problem = World('data/world00.txt')
+problem = World('world.txt')
 init_policy = problem.generate_random_policy()
 
 visualizer = Visualizer(problem)

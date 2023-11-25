@@ -2,7 +2,7 @@ from World import World
 from QLearning import QLearning
 from Visualizer import Visualizer
 
-problem = World('data/world00.txt')
+problem = World('world.txt')
 
 solver = QLearning(problem.n_states, problem.blackbox_move)
 solver.train()
