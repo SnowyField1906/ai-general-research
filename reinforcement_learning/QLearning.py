@@ -3,17 +3,13 @@ import matplotlib.pyplot as plt
 from time import time
 from Constants import ACTION as A, TRAIN as T, VISUALIZATION as V
 
-class MCLearning:
+class QLearning:
     def __init__(self, n_states, blackbox_move):
         self.n_states = n_states
         self.transition_threshold = T.TRANSITION_THRESHOLD
 
-        self.c_table = np.zeros((n_states, A.LEN))
-        self.q_table = np.ones((n_states, A.LEN))
+        self.q_table = np.zeros((n_states, A.LEN))
         self.policy = np.random.randint(A.LEN, size=n_states)
-
-        self.visited = np.zeros((n_states, A.LEN))
-        self.count_table = np.zeros((n_states, A.LEN))
 
         self.blackbox_move = blackbox_move
 
@@ -35,53 +31,32 @@ class MCLearning:
             return np.random.randint(A.LEN)
         else:
             return self.policy[next_state]
-
-    def percept(self, state, action, reward):
+    
+    def percept(self, state, action, next_state, reward):
         """
         Update the learned reward and transition model after each step moved in MDP from the given (s, a, s', r) associated with that step.
 
         ### Parameters
             - state: The current state.
             - action: The current action.
+            - next_state: The next state.
             - reward: The reward of the current state.
 
         ### Algorithm
-        Every state-action pair that has been visited will be added with the current reward.
+        Q-Table will be update on every step with given learning rate. Policy will be updated as well.
         """
-        if self.visited[state, action] == 0:
-            self.visited[state, action] = 1
-        
-        visited = self.visited == 1
-        self.c_table[visited] += reward
-
+        td_error = reward + T.DISCOUNT_FACTOR * np.max(self.q_table[next_state]) - self.q_table[state, action]
+        self.q_table[state, action] += T.LEARNING_RATE * td_error
+        self.policy[state] = np.argmax(self.q_table[state])
+    
     def one_evaluation(self, state):
-        """
-        Perform one episode of evaluation.
-
-        ### Parameters
-            - state: The starting state.
-
-        ### Algorithm
-        For each step, the agent will:
-            - Actuate the next action based on the current state.
-            - Percept the next state and reward based on the current state and action.
-            - Update the learned reward and transition model.
-            - Update the learned policy.
-        Until:
-            - The agent reaches the goal.
-            - The agent falls into the pit.
-
-        ### Return
-            - The total reward of the episode.
-            - Whether the agent wins the game.
-        """
-        win = False
+        win = 0
         reward_game = 0
 
         while True:
             action = self.actuate(state)
             next_state, reward = self.blackbox_move(state, action)
-            self.percept(state, action, reward)
+            self.percept(state, action, next_state, reward)
             reward_game += reward
 
             if reward in T.TERMINAL:
@@ -90,27 +65,9 @@ class MCLearning:
             else:
                 state = next_state
 
+        self.transition_threshold *= T.DECAY_FACTOR        
+        
         return reward_game, win
-
-    def policy_improvement(self):
-        """
-        Update the learned policy after each episode.
-
-        ### Algorithm
-        Use the learned C-Table to update the Q-Table by Monte Carlo method.
-        """
-
-        visited = self.visited == 1
-        self.count_table[visited] += 1
-
-        self.q_table[visited] += (self.c_table[visited] - self.q_table[visited]) / self.count_table[visited]
-
-        for state in range(self.n_states):
-            self.policy[state] = np.argmax(self.q_table[state])
-
-        self.c_table = np.zeros((self.n_states, A.LEN))
-        self.visited = np.zeros((self.n_states, A.LEN))
-        self.transition_threshold *= T.DECAY_FACTOR
 
     def train(self, plot=True):
         reward_history = np.zeros(T.IMPROVEMENT_LIMIT)
@@ -124,7 +81,6 @@ class MCLearning:
             print(f'Training epoch {i + 1}')
 
             reward_episode, win_episode = self.one_evaluation(0)
-            self.policy_improvement()
 
             total_reward += reward_episode
             game_win[i] = win_episode
@@ -133,14 +89,14 @@ class MCLearning:
 
         time_end = int(round(time() * 1000))
 
-        print(f'Time used = {time_end - time_start}')
-        print(f'Final reward = {total_reward}')
+        print(f'time used = {time_end - time_start}')
+        print(f'final reward = {total_reward}')
 
         segment = 10
         game_win = game_win.reshape((segment, T.IMPROVEMENT_LIMIT // segment))
         game_win = np.sum(game_win, axis=1)
 
-        print(f'Winning percentage = {game_win / (T.IMPROVEMENT_LIMIT // segment)}')
+        print(f'winning percentage = {game_win / (T.IMPROVEMENT_LIMIT // segment)}')
 
         if plot:
             _, axes = plt.subplots(2, 1, figsize=V.FIG_SIZE, sharex='all')

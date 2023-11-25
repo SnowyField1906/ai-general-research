@@ -4,7 +4,7 @@ from time import time
 from PolicyIteration import PolicyIteration
 from Constants import ACTION as A, TRAIN as T, VISUALIZATION as V
 
-class ADPLearner:
+class ADPLearning:
     def __init__(self, n_states, blackbox_move):
         self.n_states = n_states
         self.transition_threshold = T.TRANSITION_THRESHOLD
@@ -185,5 +185,3 @@ class ADPLearner:
 
             plt.tight_layout()
             plt.show()
-
-        return total_reward

@@ -1,10 +1,10 @@
 from World import World
-from MCLearning import MCLearning
+from QLearning import QLearning
 from Visualizer import Visualizer
 
 problem = World('data/world00.txt')
 
-solver = MCLearning(problem.n_states, problem.blackbox_move)
+solver = QLearning(problem.n_states, problem.blackbox_move)
 solver.train()
 
 visualizer = Visualizer(problem)

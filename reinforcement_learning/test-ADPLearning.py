@@ -1,11 +1,11 @@
 
 from World import World
-from ADPLearning import ADPLearner
+from ADPLearning import ADPLearning
 from Visualizer import Visualizer
 
 problem = World('data/world00.txt')
 
-solver = ADPLearner(problem.n_states, problem.blackbox_move)
+solver = ADPLearning(problem.n_states, problem.blackbox_move)
 solver.train()
 
 visualizer = Visualizer(problem)
